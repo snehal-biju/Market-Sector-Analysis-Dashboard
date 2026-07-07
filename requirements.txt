@@ -1,0 +1,7 @@
+# Market & Sector Analysis Dashboard — dependencies
+streamlit>=1.40
+yfinance>=0.2.50
+pandas>=2.2
+numpy>=1.26
+plotly>=5.24
+scikit-learn>=1.5
