@@ -142,4 +142,4 @@ research and consult a licensed professional.
 
 ## License
 
-[MIT](LICENSE) — replace `YOUR NAME` in the license file with your name.
+[MIT](LICENSE) — replace `Snehal Biju` in the license file with your name.
