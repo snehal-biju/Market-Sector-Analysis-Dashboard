@@ -4,6 +4,7 @@ A top-down, **end-of-day** dashboard that reads the market from the top: overall
 **sentiment**, **sector momentum** (positive/negative), **technicals**, and
 **constituent-based fundamentals** across US sectors and global markets — built
 with Python, Streamlit, and free Yahoo Finance data.
+> **Live demo:** _https://market-sector-analysis-dashboard.onrender.com_ .
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Streamlit](https://img.shields.io/badge/built%20with-Streamlit-ff4b4b)
