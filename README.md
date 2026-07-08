@@ -1,14 +1,21 @@
 # 📊 Market & Sector Analysis Dashboard
 
-A top-down, **end-of-day** dashboard that reads the market from the top: overall
-**sentiment**, **sector momentum** (positive/negative), **technicals**, and
-**constituent-based fundamentals** across US sectors and global markets — built
-with Python, Streamlit, and free Yahoo Finance data.
-> **Live demo:** _https://market-sector-analysis-dashboard.onrender.com_ .
+A top-down, **end-of-day** dashboard that reads the market from the top — overall
+**sentiment**, **sector momentum** (positive/negative), **technicals**,
+**constituent-based fundamentals**, **unsupervised-ML market-regime detection**,
+and **LLM-generated plain-English commentary** — across US sectors and global
+markets. Built with Python, Streamlit, scikit-learn, and the Claude / OpenAI API,
+on free Yahoo Finance data.
 
+[![Live Demo](https://img.shields.io/badge/live_demo-Render-46E3B7?logo=render&logoColor=white)](https://market-sector-analysis-dashboard.onrender.com)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Streamlit](https://img.shields.io/badge/built%20with-Streamlit-ff4b4b)
+![scikit-learn](https://img.shields.io/badge/ML-scikit--learn-f89939)
+![AI](https://img.shields.io/badge/AI-Claude%20%7C%20OpenAI-8A2BE2)
 ![License: MIT](https://img.shields.io/badge/license-MIT-green)
+
+**▶️ Live demo:** <https://market-sector-analysis-dashboard.onrender.com>
+_(hosted free on Render — the first load after idle can take ~30–60s to wake)._
 
 > **Descriptive analysis, not investment advice.** This project summarizes market
 > *state* — it does **not** predict prices, generate buy/sell signals, or
@@ -66,6 +73,11 @@ answerable, defensible questions — no crystal ball required.
   large-cap holdings.
 - **🔎 Detail** — any instrument: candlestick with SMA 20/50/200, RSI, and MACD,
   plus a technical snapshot (trend posture, RSI regime, distance from the 200-day).
+- **🤖 AI Commentary** — feeds the day's sentiment, ML regime, and top/bottom
+  sector momentum into an LLM (**Claude** by default, **OpenAI** optional) to
+  generate a plain-English market summary. The system prompt is constrained to
+  *describe* the current state — no price predictions, no buy/sell calls. Shows
+  the exact data sent to the model for transparency; runs only on demand.
 
 ## How it works (methodology)
 
@@ -77,15 +89,18 @@ answerable, defensible questions — no crystal ball required.
 | **Technicals** | RSI(14), MACD(12/26/9), SMA 20/50/200, 52-week range, all causal and descriptive. |
 | **Fundamentals** | yfinance `.info` per representative holding → median per sector. Cached per day. |
 | **Market regime** | KMeans on standardized daily features (21d return, 21d realized vol, VIX, breadth, drawdown); clusters ordered by a stress score and given readable labels. Unsupervised — no target, no forecast. |
+| **AI commentary** | The computed metrics are rendered into a labeled data block and sent to an LLM with a strict system prompt (describe only; no predictions or recommendations; ground every claim in the data). Claude (`claude-opus-4-8` default) via the `anthropic` SDK, or OpenAI via the `openai` SDK. |
 
-The rule-based pieces are transparent by design; the one ML layer (regime
-clustering) is **unsupervised and descriptive** — it labels the market
-environment learned from data, not a price forecast or trade signal.
+The rule-based pieces are transparent by design. The two AI layers stay on the
+descriptive side of the line: regime clustering is **unsupervised** (labels the
+environment learned from data), and the commentary LLM is prompt-constrained to
+summarize the current state — neither forecasts prices or suggests trades.
 
 ## Tech stack
 
 Python · [Streamlit](https://streamlit.io) · [yfinance](https://github.com/ranaroussi/yfinance)
 · pandas · NumPy · [scikit-learn](https://scikit-learn.org) · [Plotly](https://plotly.com/python/)
+· [anthropic](https://github.com/anthropics/anthropic-sdk-python) / [openai](https://github.com/openai/openai-python) (AI commentary)
 
 ## Setup
 
@@ -109,18 +124,33 @@ per fundamentals holding) from Yahoo and caches them to `data/` for the day; use
 
 Prefer a quick check without the UI? `python smoke_test.py`.
 
+### AI Commentary (optional)
+
+Every tab except **🤖 AI Commentary** works with no configuration. To use that
+tab, supply an API key for your chosen provider — paste it into the field in the
+tab, set an environment variable, or add it to `.streamlit/secrets.toml`:
+
+```bash
+export ANTHROPIC_API_KEY=sk-ant-...     # Claude (default)
+export OPENAI_API_KEY=sk-...            # OpenAI (optional)
+```
+
+Generation runs only when you click **Generate commentary**, so no keys or calls
+are needed just to browse the dashboard.
+
 ## Project structure
 
 ```
-app.py                 Streamlit dashboard (6 tabs)
+app.py                 Streamlit dashboard (7 tabs)
 analysis/
   universe.py          ETF universe (sectors / broad / global) + constituents
   data.py              yfinance EOD fetch + per-day parquet cache
   technicals.py        RSI / MACD / SMAs / multi-timeframe returns + trend posture
   sectors.py           blended momentum score + relative strength + classification
   sentiment.py         composite risk-appetite gauge (trend/VIX/breadth/rotation)
-  regime.py            unsupervised KMeans market-regime detection (the ML layer)
+  regime.py            unsupervised KMeans market-regime detection (ML)
   fundamentals.py      constituent-based sector valuation (cached)
+  commentary.py        LLM market summary (Claude / OpenAI), prompt-constrained
 smoke_test.py          end-to-end check, no server
 requirements.txt
 ```
@@ -143,4 +173,4 @@ research and consult a licensed professional.
 
 ## License
 
-[MIT](LICENSE) — replace `Snehal Biju` in the license file with your name.
+[MIT](LICENSE) — replace `YOUR NAME` in the license file with your name.
